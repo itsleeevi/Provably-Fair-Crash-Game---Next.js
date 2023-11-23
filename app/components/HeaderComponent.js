@@ -11,19 +11,12 @@ import {
 import { Money, Cube, Alert, User, Add, Atm, HelpBook } from "grommet-icons";
 import { CrashContext } from "../contexts/CrashContext";
 
-const AccountButton = ({ accounts, color, label }) => (
+const AccountButton = ({ shortAdress, color, label }) => (
   <Button
     icon={<User />}
     secondary
     color={color}
-    label={
-      <Text size="small">
-        {label +
-          accounts[0].substring(0, 6) +
-          "..." +
-          accounts[0].substring(accounts[0].length - 4)}
-      </Text>
-    }
+    label={<Text size="small">{label + shortAdress}</Text>}
     gap="small"
   />
 );
@@ -41,13 +34,19 @@ const HeaderComponent = () => {
     setIsWithdraw,
     gameBalance,
     setHowItWorksModalOpen,
+    shortAdress,
   } = useContext(CrashContext);
 
   const userLabel = userName ? userName + ": " : "";
   const accountDisplay = loggedIn ? (
     <>
       <Box justify="end" direction="row" gap="small">
-        <AccountButton accounts={accounts} color={color} label={userLabel} />
+        <AccountButton
+          shortAdress={shortAdress}
+          color={color}
+          label={userLabel}
+        />
+
         <Button
           icon={<Add />}
           primary

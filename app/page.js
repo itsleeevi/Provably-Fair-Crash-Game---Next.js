@@ -30,6 +30,7 @@ export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [signature, setSignature] = useState(undefined);
   const [initiated, setInitiated] = useState(false);
+  const [shortAdress, setShortAdress] = useState("");
 
   const [owner, setOwner] = useState(undefined);
   const [metaMaskInstalled, setMetaMaskInstalled] = useState(true);
@@ -141,6 +142,11 @@ export default function Home() {
   useEffect(() => {
     if (accounts.length > 0) {
       setLoggedIn(true);
+      setShortAdress(
+        accounts[0].substring(0, 6) +
+          "..." +
+          accounts[0].substring(accounts[0].length - 4)
+      );
     } else {
       setLoggedIn(false);
     }
@@ -561,6 +567,7 @@ export default function Home() {
           setExited,
           howItWorksModalOpen,
           setHowItWorksModalOpen,
+          shortAdress,
         }}
       >
         <HeaderComponent />
