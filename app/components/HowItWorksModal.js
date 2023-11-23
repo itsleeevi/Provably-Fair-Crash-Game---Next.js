@@ -169,21 +169,21 @@ const HowItWorksModal = () => {
                 pad={{ bottom: "small" }}
               />
               <Text weight="lighter">
-                Our game uses a unique formula to determine each round's crash
-                point. We start with a secret number, known as the server seed,
-                and combine it with a unique game counter called the nonce. To
-                ensure fairness, we first hide this secret number (seed) with a
-                'hash', and we make that public before each round. The seed
-                always produces the same hash, so after each game, we'll get
-                this same 'hash' by hashing the secret number again, proving
-                that the seed and the crash point weren't changed during the
-                game. The crash point is designed not to exceed a certain limit,
-                the max multiplier, which we set based on our total funds and
-                all players' bets. After the game, we reveal the server seed.
-                You can then decode it and check both the formula and the limit.
-                This process proves that the crash point was calculated fairly
-                and in advance, ensuring a transparent and trustworthy game
-                experience.
+                Our game uses a unique formula to determine each round&apos;s
+                crash point. We start with a secret number, known as the server
+                seed, and combine it with a unique game counter called the
+                nonce. To ensure fairness, we first hide this secret number
+                (seed) with a &apos;hash&apos;, and we make that public before
+                each round. The seed always produces the same hash, so after
+                each game, we&apos;ll get this same &apos;hash&apos; by hashing
+                the secret number again, proving that the seed and the crash
+                point weren&apos;t changed during the game. The crash point is
+                designed not to exceed a certain limit, the max multiplier,
+                which we set based on our total funds and all players&apos;
+                bets. After the game, we reveal the server seed. You can then
+                decode it and check both the formula and the limit. This process
+                proves that the crash point was calculated fairly and in
+                advance, ensuring a transparent and trustworthy game experience.
                 <br />
                 <br />
                 If you scroll below, you can make sure all about this by

@@ -1,13 +1,12 @@
-import { Box, Button, ResponsiveContext } from "grommet";
+import { Box, Button, ResponsiveContext, Anchor } from "grommet";
 import { Integration, Magic } from "grommet-icons";
 import { React, useContext, useEffect } from "react";
-import MetaMaskOnboarding from "@metamask/onboarding";
+
 import { CrashContext } from "../contexts/CrashContext";
 import { switchNetwork } from "../utils/utils";
 
 const ConnectMetaMask = () => {
   let currentAccount = null;
-  const onboarding = new MetaMaskOnboarding("https://fwd.metamask.io");
   const { color, metaMaskInstalled } = useContext(CrashContext);
 
   function handleAccountsChanged(accounts) {
@@ -135,16 +134,18 @@ const ConnectMetaMask = () => {
             border={{ color: "#1B1B1B", size: "large" }}
           >
             <Box animation="fadeIn">
-              <Button
-                id="connectButton"
-                secondary
-                icon={<Magic />}
-                label="INSTALL METAMASK"
-                onClick={() => {
-                  onboarding.startOnboarding();
-                }}
-                color={color}
-              />
+              <Anchor
+                href="https://fwd.metamask.io"
+                label={
+                  <Button
+                    id="connectButton"
+                    secondary
+                    icon={<Magic />}
+                    label="INSTALL METAMASK"
+                    color={color}
+                  />
+                }
+              ></Anchor>
             </Box>
           </Box>
         )}
@@ -161,16 +162,18 @@ const ConnectMetaMask = () => {
             border={{ color: "#1B1B1B", size: "large" }}
           >
             <Box animation="fadeIn">
-              <Button
-                id="connectButton"
-                secondary
-                icon={<Magic size="medium" />}
-                label="INSTALL METAMASK"
-                onClick={() => {
-                  onboarding.startOnboarding();
-                }}
-                color={color}
-              />
+              <Anchor
+                href="https://fwd.metamask.io"
+                label={
+                  <Button
+                    id="connectButton"
+                    secondary
+                    icon={<Magic size="medium" />}
+                    label="INSTALL METAMASK"
+                    color={color}
+                  />
+                }
+              ></Anchor>
             </Box>
           </Box>
         )}
@@ -187,17 +190,19 @@ const ConnectMetaMask = () => {
             border={{ color: "#1B1B1B", size: "large" }}
           >
             <Box animation="fadeIn">
-              <Button
-                id="connectButton"
-                secondary
-                size="xlarge"
-                icon={<Magic />}
-                label="INSTALL METAMASK"
-                onClick={() => {
-                  onboarding.startOnboarding();
-                }}
-                color={color}
-              />
+              <Anchor
+                href="https://fwd.metamask.io"
+                label={
+                  <Button
+                    id="connectButton"
+                    secondary
+                    size="xlarge"
+                    icon={<Magic />}
+                    label="INSTALL METAMASK"
+                    color={color}
+                  />
+                }
+              ></Anchor>
             </Box>
           </Box>
         )}

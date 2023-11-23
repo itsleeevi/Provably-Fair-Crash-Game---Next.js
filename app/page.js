@@ -19,7 +19,7 @@ import HowItWorksModal from "./components/HowItWorksModal";
 import { calculateBravery, switchNetwork } from "./utils/utils";
 
 export default function Home() {
-  const url = "http://localhost:3003/";
+  const url = "https://shark-app-6k9vy.ondigitalocean.app/";
   const socket = io(url);
 
   // web3 hooks

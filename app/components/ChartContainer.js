@@ -41,7 +41,7 @@ const ChartContainer = ({ socket, color }) => {
       socket.off("newChartPoint");
       socket.off("crashEvent");
     };
-  }, [socket, loaded, hasCrashed, initiatedCashOut]);
+  }, [socket, loaded, hasCrashed]);
 
   const renderChart = () => {
     return (
