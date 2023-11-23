@@ -6,28 +6,16 @@ import { CrashContext } from "../contexts/CrashContext";
 import { switchNetwork } from "../utils/utils";
 
 const ConnectMetaMask = () => {
-  let currentAccount = null;
-  const { color, metaMaskInstalled } = useContext(CrashContext);
+  const { color, metaMaskInstalled, setAccounts } = useContext(CrashContext);
 
-  function handleAccountsChanged(accounts) {
-    if (accounts.length === 0) {
-      console.log("Please connect to MetaMask.");
-    } else if (accounts[0] !== currentAccount) {
-      currentAccount = accounts[0];
-    }
-  }
   async function getAccount() {
     if (typeof window !== "undefined" && window.ethereum) {
-      await switchNetwork();
-      window.ethereum
-        .request({ method: "eth_requestAccounts" })
-        .then(handleAccountsChanged)
-        .catch((err) => {
-          if (err.code === 4001) {
-            console.log("Please connect to MetaMask.");
-          } else {
-            console.error(err);
-          }
+      await await window.ethereum
+        .request({
+          method: "eth_requestAccounts",
+        })
+        .then(async (accounts) => {
+          setAccounts(await accounts);
         });
     }
   }
@@ -55,8 +43,8 @@ const ConnectMetaMask = () => {
                 secondary
                 icon={<Integration />}
                 label="CONNECT"
-                onClick={() => {
-                  getAccount();
+                onClick={async () => {
+                  await getAccount();
                 }}
                 color={color}
               />
@@ -81,8 +69,8 @@ const ConnectMetaMask = () => {
                 secondary
                 icon={<Integration size="medium" />}
                 label="CONNECT"
-                onClick={() => {
-                  getAccount();
+                onClick={async () => {
+                  await getAccount();
                 }}
                 color={color}
               />
@@ -108,8 +96,8 @@ const ConnectMetaMask = () => {
                 size="xlarge"
                 icon={<Integration />}
                 label="CONNECT"
-                onClick={() => {
-                  getAccount();
+                onClick={async () => {
+                  await getAccount();
                 }}
                 color={color}
               />
