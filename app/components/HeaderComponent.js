@@ -118,7 +118,7 @@ const HeaderComponent = () => {
       icon={<HelpBook />}
       label={
         <Text size={size === "small" ? "medium" : "large"}>
-          <Text size="small">HOW IT WORKS?</Text>
+          <Text size="small">HOW IT WORKS</Text>
         </Text>
       }
       onClick={() => setHowItWorksModalOpen(true)}
