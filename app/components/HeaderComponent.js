@@ -26,8 +26,6 @@ const HeaderComponent = () => {
   const {
     userName,
     loggedIn,
-    accounts,
-    playerExistsInDB,
     color,
     setModalOpen,
     setIsDeposit,

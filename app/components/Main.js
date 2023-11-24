@@ -1,4 +1,4 @@
-import { Box, Grid } from "grommet";
+import { Box, Grid, Spinner } from "grommet";
 import { useEffect, useState, useContext } from "react";
 import React from "react";
 import { ResponsiveContext } from "grommet";
@@ -95,7 +95,7 @@ const Responsive = ({
 
 const Main = () => {
   // Defining states
-  const [state, setState] = useState("BETTING"); // BETTING, PLAYING, CRASHED
+  const [state, setState] = useState(undefined); // BETTING, PLAYING, CRASHED
   const [data, setData] = useState([{ x: 0, y: 1 }]);
   const [crashPoint, setCrashPoint] = useState(1.0);
   const [resultTableAll, setResultTableAll] = useState([]);
@@ -118,12 +118,7 @@ const Main = () => {
     setUserWon,
     setGameState,
     setWonAmount,
-    initiatedCashOut,
     setInitiatedCashOut,
-    setStartTimeApp,
-    setAutoCashOutMultiplier,
-    autoCashOutMultiplier,
-    autoCashOut,
     setColor,
     setCashOutColor,
     setInitColorBetting,
@@ -134,11 +129,12 @@ const Main = () => {
     setGameBalance,
     setExited,
     setExitMultiplier,
+    controlLoaded,
+    setControlLoaded,
   } = useContext(CrashContext);
 
   useEffect(() => {
     socket.on("currentState", (receivedState) => {
-      console.log("currentState: " + receivedState);
       setState(receivedState);
       if (receivedState === "BETTING") setColor("#6FFFB0");
       if (receivedState === "CRASHED") {
@@ -151,20 +147,15 @@ const Main = () => {
     });
 
     socket.on("crashEvent", (receivedCrashPoint) => {
-      console.log("calculatedCrashPoint: " + receivedCrashPoint);
       setCrashPoint(receivedCrashPoint);
     });
+
     socket.on("bettingTime", (receivedBettingTime) => {
-      console.log("bettingTime: " + receivedBettingTime);
       setBettingTime(receivedBettingTime);
     });
+
     socket.on("gameStartTime", (receivedGameStartTime) => {
-      console.log("gameStartTime: " + receivedGameStartTime);
       setGameStartTime(receivedGameStartTime);
-    });
-    socket.on("startData", (receivedStartData) => {
-      console.log("startData: " + receivedStartData);
-      setStartTimeApp(Date.parse(receivedStartData));
     });
   }, []);
 
@@ -185,7 +176,6 @@ const Main = () => {
 
   useEffect(() => {
     socket.on("cashout-confirmation", (confirmation) => {
-      console.log(confirmation);
       if (
         accounts.length > 0 &&
         confirmation.address.toLowerCase() === accounts[0].toLowerCase() &&
@@ -204,14 +194,11 @@ const Main = () => {
     setGameState(state);
     if (state === "BETTING") {
       setUserBetAmount(0);
-
       setUserWon(false);
       setUserCrashed(false);
       setWonAmount(undefined);
-      setAutoCashOutMultiplier(undefined);
       setCrashPoint(1.0);
       setConnected(false);
-      setResultTableAll([]);
       setInitiatedCashOut(false);
       setWonAmount(0);
       setCashOutMultiplier(undefined);
@@ -227,7 +214,6 @@ const Main = () => {
 
   useEffect(() => {
     Axios.post(url + "history").then(async (result) => {
-      console.log("result", await result.data.rounds);
       setHistoryAll(await result.data.rounds);
     });
   }, [state]);
@@ -236,7 +222,7 @@ const Main = () => {
     socket.on("everyPlayer", (receivedData) => {
       setResultTableAll(receivedData);
     });
-  });
+  }, []);
 
   useEffect(() => {
     if (state === "BETTING" && !userPlacedBet) {
@@ -265,9 +251,8 @@ const Main = () => {
   }, [state]);
 
   useEffect(() => {
-    console.log("state ", state);
-    console.log("userPlacedBet ", userPlacedBet);
-  }, [state, userPlacedBet]);
+    if (state) setControlLoaded(true);
+  }, [state]);
 
   return (
     <MainComponentContext.Provider
@@ -289,6 +274,7 @@ const Main = () => {
         setBettingTime,
         gameStartTime,
         setGameStartTime,
+        controlLoaded,
       }}
     >
       <Box background="#222222">
@@ -299,14 +285,53 @@ const Main = () => {
           pad="small"
           areas={fixedGridAreas}
         >
-          <Control />
+          {controlLoaded ? (
+            <>
+              <Control />
+            </>
+          ) : (
+            <>
+              <Box
+                gridArea="betting"
+                background="#171717"
+                align="center"
+                justify="center"
+                round="xsmall"
+                pad="large"
+                border={{ color: "#1B1B1B", size: "large" }}
+              >
+                <Spinner />
+              </Box>
+            </>
+          )}
+
           <ResultTable />
           <Chat />
-          {state === "BETTING" && <MainBetting />}
-          {state === "PLAYING" && (
-            <ChartContainer socket={socket} color={color} />
+          {controlLoaded ? (
+            <>
+              {state === "BETTING" && <MainBetting />}
+              {state === "PLAYING" && (
+                <ChartContainer socket={socket} color={color} />
+              )}
+              {state === "CRASHED" && <MainCrashed />}
+            </>
+          ) : (
+            <>
+              <Box
+                gridArea="chart"
+                background="#171717"
+                fill={true}
+                pad="small"
+                round="xsmall"
+                responsive={true}
+                border={{ color: "#1B1B1B", size: "large" }}
+                align="center"
+                justify="center"
+              >
+                <Spinner />
+              </Box>
+            </>
           )}
-          {state === "CRASHED" && <MainCrashed />}
         </Responsive>
       </Box>
     </MainComponentContext.Provider>

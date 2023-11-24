@@ -6,10 +6,9 @@ import {
   ResponsiveContext,
   Tab,
   Tabs,
-  Grid,
   TextInput,
 } from "grommet";
-import { History, Achievement, Shield } from "grommet-icons";
+import { Achievement, Shield } from "grommet-icons";
 import { useContext } from "react";
 import { CrashContext } from "../contexts/CrashContext";
 import { MainComponentContext } from "../contexts/MainComponentContext";

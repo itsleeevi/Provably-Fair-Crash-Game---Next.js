@@ -2,7 +2,6 @@ import { Box, Heading, Stack, ResponsiveContext } from "grommet";
 import { VictoryLine, VictoryChart, VictoryArea, VictoryAxis } from "victory";
 import Countdown from "react-countdown";
 import { useContext } from "react";
-import { CrashContext } from "../contexts/CrashContext";
 import { MainComponentContext } from "../contexts/MainComponentContext";
 
 // Timer

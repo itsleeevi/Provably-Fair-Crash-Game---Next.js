@@ -7,10 +7,9 @@ import {
   Form,
   ResponsiveContext,
   Text,
-  Tabs,
-  Tab,
+  Spinner,
 } from "grommet";
-import { Send, ChatOption, History } from "grommet-icons";
+import { Send, ChatOption } from "grommet-icons";
 import ChatMessages from "./ChatMessages.js";
 import { CrashContext } from "../contexts/CrashContext.js";
 import "./App.css";
@@ -68,8 +67,18 @@ const MessageForm = ({ value, onChange, onSubmit, color, disabled, size }) => (
 const ChatComponent = () => {
   const [value, setValue] = useState("");
   const size = useContext(ResponsiveContext);
-  const { userName, isReady, color, setMessage, socket, addPlayer } =
-    useContext(CrashContext);
+  const {
+    userName,
+    isReady,
+    color,
+    setMessage,
+    socket,
+    addPlayer,
+    firstLoading,
+    accounts,
+    chatLoading,
+    setChatLoading,
+  } = useContext(CrashContext);
 
   const handleUsernameSubmit = (event) => {
     event.preventDefault();
@@ -122,8 +131,8 @@ const ChatComponent = () => {
             gap="small"
             responsive
           >
-            {isReady() && !userName && (
-              <>
+            <>
+              {chatLoading ? (
                 <Box
                   justify="center"
                   align="center"
@@ -131,50 +140,70 @@ const ChatComponent = () => {
                   responsive={true}
                   background="#171717"
                 >
-                  <UsernameForm
-                    onSubmit={handleUsernameSubmit}
-                    color={color}
-                    size={size}
-                  />
+                  <Spinner />
                 </Box>
-                <MessageForm
-                  value={value}
-                  onChange={handleInputChange}
-                  setMessage={setMessage}
-                  color={color}
-                  disabled={true}
-                  size={size}
-                />
-              </>
-            )}
-            {userName && isReady() && (
-              <>
-                <Box animation="fadeIn" responsive={true}>
-                  <ChatMessages socket={socket} color={color} />
-                </Box>
-                <MessageForm
-                  value={value}
-                  onChange={handleInputChange}
-                  onSubmit={handleMessageSubmit}
-                  color={color}
-                  disabled={false}
-                  size={size}
-                />
-              </>
-            )}
-            {!userName && !isReady() && (
-              <>
-                <ChatMessages socket={socket} color={color} />
-                <MessageForm
-                  value={value}
-                  onChange={handleInputChange}
-                  onSubmit={handleMessageSubmit}
-                  color={color}
-                  disabled={true}
-                  size={size}
-                />
-              </>
-            )}
+              ) : (
+                <>
+                  <>
+                    {isReady() ? (
+                      <>
+                        {userName ? (
+                          <>
+                            <Box animation="fadeIn" responsive={true}>
+                              <ChatMessages socket={socket} color={color} />
+                            </Box>
+                            <MessageForm
+                              value={value}
+                              onChange={handleInputChange}
+                              onSubmit={handleMessageSubmit}
+                              color={color}
+                              disabled={false}
+                              size={size}
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <Box
+                              justify="center"
+                              align="center"
+                              gap="small"
+                              responsive={true}
+                              background="#171717"
+                            >
+                              <UsernameForm
+                                onSubmit={handleUsernameSubmit}
+                                color={color}
+                                size={size}
+                              />
+                            </Box>
+                            <MessageForm
+                              value={value}
+                              onChange={handleInputChange}
+                              setMessage={setMessage}
+                              color={color}
+                              disabled={true}
+                              size={size}
+                            />
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <ChatMessages socket={socket} color={color} />
+                        <MessageForm
+                          value={value}
+                          onChange={handleInputChange}
+                          onSubmit={handleMessageSubmit}
+                          color={color}
+                          disabled={true}
+                          size={size}
+                        />
+                      </>
+                    )}
+                  </>
+                </>
+              )}
+            </>
           </Grid>
         </Box>
       </Box>

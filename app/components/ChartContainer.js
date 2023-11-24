@@ -128,7 +128,7 @@ const ChartContainer = ({ socket, color }) => {
               alignSelf="center"
               margin="none"
             >
-              {data[data.length - 1].y.toFixed(2) + "x"}
+              <>{data[data.length - 1].y.toFixed(2) + "x"}</>
             </Heading>
           </Box>
         </Stack>

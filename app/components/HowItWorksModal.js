@@ -2,29 +2,17 @@ import React, { useState } from "react";
 import {
   Box,
   Text,
-  Form,
-  FormField,
   Grid,
   TextInput,
   Button,
   Anchor,
-  Spinner,
   PageHeader,
   Heading,
 } from "grommet";
 import { CrashContext } from "../contexts/CrashContext";
 import styled from "styled-components";
 import { useContext, useEffect } from "react";
-import {
-  Money,
-  Cube,
-  Alert,
-  User,
-  Close,
-  Atm,
-  Add,
-  HelpBook,
-} from "grommet-icons";
+import { HelpBook } from "grommet-icons";
 import hljs from "highlight.js";
 import "highlight.js/styles/vs2015.css"; // This is the style, you can change it
 import crypto from "crypto";
@@ -43,25 +31,8 @@ const ModalContainer = styled.div`
 `;
 
 const HowItWorksModal = () => {
-  const {
-    howItWorksModalOpen,
-    setHowItWorksModalOpen,
-    modalOpen,
-    color,
-    setModalOpen,
-    isDeposit,
-    isWithdraw,
-    setIsDeposit,
-    setIsWithdraw,
-    gameBalance,
-    setGameBalance,
-    walletBalance,
-    deposit,
-    accounts,
-    token,
-    socket,
-    withdraw,
-  } = useContext(CrashContext);
+  const { howItWorksModalOpen, setHowItWorksModalOpen } =
+    useContext(CrashContext);
   const [serverSeed, setServerSeed] = useState("");
   const [nonce, setNonce] = useState("");
   const [maxMultiplier, setMaxMultiplier] = useState("");
@@ -71,17 +42,21 @@ const HowItWorksModal = () => {
   const [calculatedHash, setCalculatedHash] = useState(undefined);
 
   const calculateCrashPoint = () => {
-    // Hash the combined server seed and nonce
-    const hash = crypto
-      .createHash("sha256")
-      .update(`${serverSeed}-${nonce}`)
-      .digest("hex");
+    // Combine the server seed and nonce for hashing
+    const combinedSeed = `${serverSeed}-${nonce}`;
+    const hash = crypto.createHash("sha256").update(combinedSeed).digest("hex");
 
-    // Convert the hash to a number in the range [0, 1)
-    const hashFraction = parseInt(hash.slice(0, 10), 16) / 0xffffffffff;
+    // Use a portion of the hash (first 8 characters) and convert it to an integer
+    const int = parseInt(hash.substr(0, 8), 16);
 
-    // Scale the hash fraction to the range [1, maxMultiplier]
-    let crashPoint = 1 + hashFraction * (maxMultiplier - 1);
+    // Use the formula to calculate crash point with a house edge of 1%
+    // 2 ** 32 / (int + 1) gives a raw crash point
+    // Multiplying by (1 - houseEdge) applies the house edge
+    const houseEdge = 0.01;
+    let crashPoint = (2 ** 32 / (int + 1)) * (1 - houseEdge);
+
+    // Ensure the crash point is within the range [1, maxMultiplier]
+    crashPoint = Math.max(1, Math.min(crashPoint, maxMultiplier));
 
     setCalculatedCrashPoint(crashPoint.toFixed(2));
   };
@@ -313,25 +288,29 @@ const HowItWorksModal = () => {
               </Heading>
               <Heading level={5}>Server Seed Hashing Function</Heading>
               <CodeSnippet
-                code={`function hashServerSeed(seed) {   
+                code={`function hashServerSeed(seed) {
   return crypto.createHash("sha256").update(seed).digest("hex");
 }`}
               />
               <Heading level={5}>Crash Point Calculation Function</Heading>
               <CodeSnippet
                 code={`function calculateCrashPoint(serverSeed, nonce, maxMultiplier) {
-  // Hash the combined server seed and nonce
-  const hash = crypto
-    .createHash("sha256")
-    .update(serverSeed-nonce)
-    .digest("hex");
-
-  // Convert the hash to a number in the range [0, 1)
-  const hashFraction = parseInt(hash.slice(0, 10), 16) / 0xffffffffff;
-
-  // Scale the hash fraction to the range [1, maxMultiplier]
-  let crashPoint = 1 + hashFraction * (maxMultiplier - 1);
-
+  // Combine the server seed and nonce for hashing
+  const combinedSeed = serverSeed-nonce;
+  const hash = crypto.createHash("sha256").update(combinedSeed).digest("hex");
+                
+  // Use a portion of the hash (first 8 characters) and convert it to an integer
+  const int = parseInt(hash.substr(0, 8), 16);
+                
+  // Use the formula to calculate crash point with a house edge of 1%
+  // 2 ** 32 / (int + 1) gives a raw crash point
+  // Multiplying by (1 - houseEdge) applies the house edge
+  const houseEdge = 0.01;
+  let crashPoint = (2 ** 32 / (int + 1)) * (1 - houseEdge);
+                
+  // Ensure the crash point is within the range [1, maxMultiplier]
+  crashPoint = Math.max(1, Math.min(crashPoint, maxMultiplier));
+                
   return crashPoint.toFixed(2);
 }`}
               />

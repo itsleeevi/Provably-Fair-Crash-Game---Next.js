@@ -1,9 +1,8 @@
 import { Box, Button, ResponsiveContext, Anchor } from "grommet";
 import { Integration, Magic } from "grommet-icons";
-import { React, useContext, useEffect } from "react";
+import { React, useContext } from "react";
 
 import { CrashContext } from "../contexts/CrashContext";
-import { switchNetwork } from "../utils/utils";
 
 const ConnectMetaMask = () => {
   const { color, metaMaskInstalled, setAccounts } = useContext(CrashContext);

@@ -21,14 +21,11 @@ const ChatMessages = ({ socket, color }) => {
   useEffect(() => {
     if (!loaded) {
       Axios.post(url + "latest-messages").then((results) => {
-        console.log("latest-messages");
-        console.log(results.data.messages);
         setRecentMessages(results.data.messages.reverse());
         setLoaded(true);
       });
     }
     const messageHandler = (receivedMessages) => {
-      console.log("receivedMessages", receivedMessages);
       if (recentMessages !== receivedMessages) {
         setRecentMessages([...recentMessages, receivedMessages]);
       }

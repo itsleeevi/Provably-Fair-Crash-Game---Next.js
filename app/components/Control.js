@@ -8,7 +8,7 @@ import {
   Text,
   ResponsiveContext,
 } from "grommet";
-import { Atm, Launch, Achievement, Time } from "grommet-icons";
+import { Launch, Achievement, Time } from "grommet-icons";
 
 import { React, useState, useContext } from "react";
 import ConnectMetaMask from "./ConnectMetaMask";
@@ -22,14 +22,14 @@ const suggestionsBet = [
   "10m wGHOST",
   "100m wGHOST",
 ];
-const suggestionsAutoBet = ["1.2x", "1.5x", "2x", "5x", "8x", "10x"];
+//const suggestionsAutoBet = ["1.2x", "1.5x", "2x", "5x", "8x", "10x"];
 
 const Control = () => {
   const [valueBet, setValueBet] = useState(undefined);
-  const [valueAutoBet, setValueAutoBet] = useState(undefined);
+  //const [valueAutoBet, setValueAutoBet] = useState(undefined);
   const size = useContext(ResponsiveContext);
   const {
-    isReady,
+    loggedIn,
     placeBet,
     color,
     cashOut,
@@ -65,7 +65,7 @@ const Control = () => {
         setValueBet("");
     }
   };
-
+  /*
   const onSuggestionSelectAutoBet = (event) => {
     switch (event.suggestion) {
       case "1.2x":
@@ -90,8 +90,8 @@ const Control = () => {
         setValueAutoBet("");
     }
   };
-
-  if (!isReady()) {
+*/
+  if (!loggedIn) {
     return <ConnectMetaMask />;
   } else {
     return (
@@ -121,7 +121,7 @@ const Control = () => {
                       onSubmit={({ value }) => {
                         placeBet(value);
                         setValueBet(undefined);
-                        setValueAutoBet(undefined);
+                        //setValueAutoBet(undefined);
                       }}
                     >
                       <Box
@@ -367,7 +367,7 @@ const Control = () => {
                       onSubmit={({ value }) => {
                         placeBet(value);
                         setValueBet(undefined);
-                        setValueAutoBet(undefined);
+                        //setValueAutoBet(undefined);
                       }}
                     >
                       <Box
@@ -670,7 +670,7 @@ const Control = () => {
                       onSubmit={({ value }) => {
                         placeBet(value);
                         setValueBet(undefined);
-                        setValueAutoBet(undefined);
+                        //setValueAutoBet(undefined);
                       }}
                     >
                       <Box

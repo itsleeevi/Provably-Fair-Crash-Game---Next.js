@@ -13,7 +13,7 @@ import {
 import { CrashContext } from "../contexts/CrashContext";
 import styled from "styled-components";
 import { useContext, useEffect } from "react";
-import { Money, Cube, Alert, User, Close, Atm, Add } from "grommet-icons";
+import { Atm, Add } from "grommet-icons";
 
 const ModalContainer = styled.div`
   position: absolute;

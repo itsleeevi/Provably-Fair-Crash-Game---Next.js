@@ -1,7 +1,12 @@
 "use client";
-
-import Image from "next/image";
-import { Grommet, Footer, Text, ResponsiveContext } from "grommet";
+import {
+  Grommet,
+  Footer,
+  Text,
+  ResponsiveContext,
+  Spinner,
+  Box,
+} from "grommet";
 import { grommet } from "grommet/themes";
 import HeaderComponent from "./components/HeaderComponent";
 import Main from "./components/Main";
@@ -20,6 +25,7 @@ import { calculateBravery, switchNetwork } from "./utils/utils";
 
 export default function Home() {
   const url = "https://shark-app-6k9vy.ondigitalocean.app/";
+  //const url = "http://localhost:3003/";
   const socket = io(url);
 
   // web3 hooks
@@ -27,14 +33,15 @@ export default function Home() {
   const [accounts, setAccounts] = useState([]);
   const [contract, setContract] = useState(undefined);
   const [token, setToken] = useState(undefined);
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(undefined);
   const [signature, setSignature] = useState(undefined);
   const [initiated, setInitiated] = useState(false);
   const [shortAdress, setShortAdress] = useState("");
+  const [firstLoading, setFirstLoading] = useState(true);
+  const [controlLoaded, setControlLoaded] = useState(false);
+  const [chatLoading, setChatLoading] = useState(true);
 
-  const [owner, setOwner] = useState(undefined);
   const [metaMaskInstalled, setMetaMaskInstalled] = useState(true);
-  const houseFee = 1; // 1%
   const [modalOpen, setModalOpen] = useState(false);
   const [howItWorksModalOpen, setHowItWorksModalOpen] = useState(false);
   const [isDeposit, setIsDeposit] = useState(false);
@@ -43,7 +50,7 @@ export default function Home() {
   const [gameBalance, setGameBalance] = useState(0);
 
   // chat hooks
-  const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState(undefined);
   const [userAddress, setUserAddress] = useState("");
   const [playerExistsInDB, setplayerExistsInDB] = useState(false);
   const [message, setMessage] = useState("");
@@ -58,8 +65,7 @@ export default function Home() {
   const [gameState, setGameState] = useState("");
   const [initiatedCashOut, setInitiatedCashOut] = useState(false);
   const [cashOutMultiplier, setCashOutMultiplier] = useState(undefined);
-  const [startTimeApp, setStartTimeApp] = useState(undefined);
-  const [autoCashOutMultiplier, setAutoCashOutMultiplier] = useState(undefined);
+  //const [autoCashOutMultiplier, setAutoCashOutMultiplier] = useState(undefined);
   const [color, setColor] = useState("#6FFFB0");
   const [cashOutColor, setCashOutColor] = useState("#FF4040");
   const [initColorBetting, setInitColorBetting] = useState(true);
@@ -72,7 +78,6 @@ export default function Home() {
       Axios.post(url + "balance", {
         address: accounts[0],
       }).then(async (response) => {
-        console.log("response.data.balance" + (await response.data.balance));
         if (response.data.balance) setGameBalance(response.data.balance);
         else setGameBalance(0);
       });
@@ -80,16 +85,17 @@ export default function Home() {
   }, [accounts]);
 
   useEffect(() => {
+    setChatLoading(true);
     if (window.ethereum && accounts.length > 0) {
       window.ethereum.on("accountsChanged", (accounts) => {
         setplayerExistsInDB(false);
-        //checkPlayerInDB();
         setAccounts(accounts);
         setUserAddress(accounts[0]);
         setUserName("");
         setUserPlacedBet(false);
       });
     }
+    setChatLoading(false);
   }, [accounts]);
 
   useEffect(() => {
@@ -151,6 +157,10 @@ export default function Home() {
       setLoggedIn(false);
     }
   }, [accounts]);
+
+  useEffect(() => {
+    if (loggedIn !== undefined) setFirstLoading(false);
+  }, [loggedIn]);
 
   useEffect(() => {
     if (accounts[0] && userName && message) {
@@ -245,7 +255,6 @@ export default function Home() {
   useEffect(() => {
     if (initiatedCashOut && exitMultiplier && !exited) {
       setExited(true);
-      console.log("exitMultiplier " + exitMultiplier);
       setUserCrashed(false);
       socket.emit("cashout", {
         address: accounts[0],
@@ -257,15 +266,16 @@ export default function Home() {
 
   // Add username connection
   const addPlayer = async (userName) => {
+    setChatLoading(true);
     if (userName !== null && accounts.length > 0) {
       Axios.post(url + "add-username", {
         address: accounts[0],
         username: userName,
       }).then(async (result) => {
-        console.log("result", await result);
         setUserName(userName);
       });
     }
+    setChatLoading(false);
   };
 
   const checkPlayerInDB = async () => {
@@ -273,13 +283,12 @@ export default function Home() {
       const accounts = await window.ethereum.request({
         method: "eth_accounts",
       });
+      setChatLoading(true);
       if (accounts.length > 0) {
         Axios.post(url + "username", {
           address: accounts[0],
         }).then(async (response) => {
-          console.log("response", await response.data);
           if (await response.data.username) {
-            console.log("response.data.username", response.data.username);
             setUserName(response.data.username);
             setplayerExistsInDB(true);
           } else {
@@ -287,6 +296,7 @@ export default function Home() {
           }
         });
       }
+      setChatLoading(false);
     }
   };
 
@@ -317,11 +327,10 @@ export default function Home() {
         .allowance(accounts[0], CONFIG.WEB3.NETWORK.POLYGON.CONTRACT_ADDRESS)
         .call()
     );
-    console.log("allowance", allowance);
 
     // Convert the deposit value to BigInt for comparison
     const depositValue = BigInt(web3.utils.toWei(value.toString(), "ether"));
-    console.log("depositValue", depositValue);
+
     // Check if the current allowance is less than the user's balance
 
     // Approve using the user's current balance as the max value
@@ -349,7 +358,7 @@ export default function Home() {
 
   // Web3 betting
   const placeBet = async (value) => {
-    setAutoCashOutMultiplier(value.autoCashOut);
+    //setAutoCashOutMultiplier(value.autoCashOut);
     if (gameState === "BETTING") {
       setUserBetAmount(value.betAmount);
       if (!signature) {
@@ -374,10 +383,10 @@ export default function Home() {
   const cashOut = async () => {
     if (gameState === "PLAYING") {
       setInitiatedCashOut(true);
-      console.log("cashout");
     }
   };
 
+  /*
   async function autoCashOut(autoCashOutMultiplier) {
     if (gameState === "PLAYING") {
       setInitiatedCashOut(true);
@@ -387,7 +396,7 @@ export default function Home() {
       setCashOutMultiplier(autoCashOutMultiplier);
       setInitColorBetting(true);
     }
-  }
+  }*/
 
   const customTheme = {
     spinner: { container: { color: "#00C781", size: "xlarge" } },
@@ -499,112 +508,123 @@ export default function Home() {
       overflow="auto"
       full
     >
-      <CrashContext.Provider
-        value={{
-          url,
-          setUserName,
-          userName,
-          isReady,
-          placeBet,
-          loggedIn,
-          accounts,
-          playerExistsInDB,
-          userAddress,
-          checkPlayerInDB,
-          color,
-          setCashOutMultiplier,
-          setMessage,
-          userBetAmount,
-          socket,
-          chatLoaded,
-          setChatLoaded,
-          userPlacedBet,
-          setUserBetAmount,
-          setUserPlacedBet,
-          userCrashed,
-          setUserCrashed,
-          userWon,
-          setUserWon,
-          setGameState,
-          wonAmount,
-          setWonAmount,
-          cashOut,
-          setInitiatedCashOut,
-          setStartTimeApp,
-          setAccounts,
-          setWeb3,
-          setLoggedIn,
-          setAutoCashOutMultiplier,
-          cashOut,
-          autoCashOutMultiplier,
-          autoCashOut,
-          addPlayer,
-          setColor,
-          cashOutColor,
-          setCashOutColor,
-          initColorBetting,
-          setInitColorBetting,
-          initColorWaiting,
-          setInitColorWaiting,
-          metaMaskInstalled,
-          modalOpen,
-          setModalOpen,
-          isDeposit,
-          setIsDeposit,
-          isWithdraw,
-          setIsWithdraw,
-          walletBalance,
-          setWalletBalance,
-          gameBalance,
-          setGameBalance,
-          deposit,
-          withdraw,
-          getSignature,
-          setSignature,
-          signature,
-          setExitMultiplier,
-          initiatedCashOut,
-          setExited,
-          howItWorksModalOpen,
-          setHowItWorksModalOpen,
-          shortAdress,
-        }}
-      >
-        <HeaderComponent />
-        <Main />
-        <Footer
-          background="#171717"
-          pad={{ vertical: "xsmall", horizontal: "medium" }}
-        >
-          <ResponsiveContext.Consumer>
-            {(size) =>
-              size === "small" ? (
-                <>
-                  <Text textAlign="start" size="6px">
-                    ©2023 CRASH. Enjoy! ❤️
-                  </Text>
-                  <Text textAlign="end" size="6px">
-                    We take {houseFee}% house fee on each bet & accept only
-                    wGHOST.
-                  </Text>
-                </>
-              ) : (
-                <>
-                  <Text textAlign="start" size="xsmall">
-                    ©2023 CRASH. Have fun! ❤️
-                  </Text>
-                  <Text textAlign="end" size="xsmall">
-                    We take {houseFee}% house fee on each bet & accept only
-                    wGHOST.
-                  </Text>
-                </>
-              )
-            }
-          </ResponsiveContext.Consumer>
-        </Footer>
-        <Modal />
-        <HowItWorksModal />
-      </CrashContext.Provider>
+      {firstLoading ? (
+        <>
+          <Box fill align="center" justify="center">
+            <Spinner size="large" />
+          </Box>
+        </>
+      ) : (
+        <>
+          <CrashContext.Provider
+            value={{
+              url,
+              setUserName,
+              userName,
+              isReady,
+              placeBet,
+              loggedIn,
+              accounts,
+              playerExistsInDB,
+              userAddress,
+              checkPlayerInDB,
+              color,
+              setCashOutMultiplier,
+              setMessage,
+              userBetAmount,
+              socket,
+              chatLoaded,
+              setChatLoaded,
+              userPlacedBet,
+              setUserBetAmount,
+              setUserPlacedBet,
+              userCrashed,
+              setUserCrashed,
+              userWon,
+              setUserWon,
+              setGameState,
+              wonAmount,
+              setWonAmount,
+              cashOut,
+              setInitiatedCashOut,
+              setAccounts,
+              setWeb3,
+              setLoggedIn,
+              cashOut,
+              addPlayer,
+              setColor,
+              cashOutColor,
+              setCashOutColor,
+              initColorBetting,
+              setInitColorBetting,
+              initColorWaiting,
+              setInitColorWaiting,
+              metaMaskInstalled,
+              modalOpen,
+              setModalOpen,
+              isDeposit,
+              setIsDeposit,
+              isWithdraw,
+              setIsWithdraw,
+              walletBalance,
+              setWalletBalance,
+              gameBalance,
+              setGameBalance,
+              deposit,
+              withdraw,
+              getSignature,
+              setSignature,
+              signature,
+              setExitMultiplier,
+              initiatedCashOut,
+              setExited,
+              howItWorksModalOpen,
+              setHowItWorksModalOpen,
+              shortAdress,
+              controlLoaded,
+              setControlLoaded,
+              firstLoading,
+              chatLoading,
+              setChatLoading,
+            }}
+          >
+            <HeaderComponent />
+            <Main />
+            <Footer
+              background="#171717"
+              pad={{ vertical: "xsmall", horizontal: "medium" }}
+            >
+              <ResponsiveContext.Consumer>
+                {(size) =>
+                  size === "small" ? (
+                    <>
+                      <Text textAlign="start" size="6px">
+                        ©2023 CRASH. Enjoy! ❤️
+                      </Text>
+                      <Text textAlign="end" size="6px">
+                        We take {houseFee}% house fee on each bet & accept only
+                        wGHOST.
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <Text textAlign="start" size="xsmall">
+                        ©2023 CRASH. Have fun! ❤️
+                      </Text>
+                      <Text textAlign="end" size="xsmall">
+                        We take 1% house fee on each deposit & accept only
+                        wGHOST.
+                      </Text>
+                    </>
+                  )
+                }
+              </ResponsiveContext.Consumer>
+            </Footer>
+            <Modal />
+            <HowItWorksModal />
+          </CrashContext.Provider>
+        </>
+      )}
     </Grommet>
   );
 }
