@@ -27,6 +27,7 @@ export default function Home() {
   const url = "https://shark-app-6k9vy.ondigitalocean.app/";
   //const url = "http://localhost:3003/";
   const socket = io(url);
+  const houseFee = 1;
 
   // web3 hooks
   const [web3, setWeb3] = useState(undefined);
@@ -612,7 +613,7 @@ export default function Home() {
                         ©2023 CRASH. Have fun! ❤️
                       </Text>
                       <Text textAlign="end" size="xsmall">
-                        We take 1% house fee on each deposit & accept only
+                        We take {houseFee}% on each deposit & accept only
                         wGHOST.
                       </Text>
                     </>
